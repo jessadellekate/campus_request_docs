@@ -93,10 +93,13 @@ jobs:
             echo "See DEPLOY.md section 7 for Hostinger setup steps."
             exit 1
           fi
-          if [[ ! "$FTP_REMOTE_DIR" =~ /$ ]]; then
-            echo "::warning::FTP_REMOTE_DIR should end with / (e.g. /public_html/)"
-          fi
+          dir="$FTP_REMOTE_DIR"
+          dir="${dir// /}"
+          [[ "$dir" != /* ]] && dir="/$dir"
+          [[ "$dir" != */ ]] && dir="${dir}/"
+          echo "FTP_REMOTE_DIR_NORM=$dir" >> "$GITHUB_ENV"
           echo "All FTP secrets present."
+          echo "Remote directory: $dir"
 
       - uses: actions/checkout@v6
 
@@ -111,7 +114,7 @@ jobs:
           protocol: ftps
           port: 21
           local-dir: ./
-          server-dir: ${{ secrets.FTP_REMOTE_DIR }}
+          server-dir: ${{ env.FTP_REMOTE_DIR_NORM }}
           log-level: standard
           dry-run: false
           exclude: |
@@ -141,7 +144,7 @@ jobs:
           protocol: ftp
           port: 21
           local-dir: ./
-          server-dir: ${{ secrets.FTP_REMOTE_DIR }}
+          server-dir: ${{ env.FTP_REMOTE_DIR_NORM }}
           log-level: standard
           dry-run: false
           exclude: |
