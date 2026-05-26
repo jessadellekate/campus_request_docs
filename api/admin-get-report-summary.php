@@ -31,8 +31,8 @@ if (($_SESSION['admin_role'] ?? '') === 'teller') {
         ? array_values(array_filter(array_map('trim', $perm['assigned_departments']))) : [];
     if (!empty($depts)) {
         $phs = implode(',', array_fill(0, count($depts), '?'));
-        $deptWhere = " AND department IN ($phs)";
-        $deptWhereDr = " AND dr.department IN ($phs)";
+        $deptWhere = " AND department COLLATE utf8mb4_unicode_ci IN ($phs)";
+        $deptWhereDr = " AND dr.department COLLATE utf8mb4_unicode_ci IN ($phs)";
         $deptParams = $depts;
     }
 }
@@ -74,12 +74,15 @@ try {
 
     if ($month) {
         $m = $month;
+        $monthStart = $m . '-01';
         $stmt = $pdo->prepare("
             SELECT COUNT(*) AS total
             FROM document_requests
-            WHERE DATE_FORMAT(requested_at, '%Y-%m') = ? {$deptWhere}
+            WHERE requested_at >= ?
+              AND requested_at < DATE_ADD(?, INTERVAL 1 MONTH)
+              {$deptWhere}
         ");
-        $stmt->execute(array_merge([$m], $deptParams));
+        $stmt->execute(array_merge([$monthStart, $monthStart], $deptParams));
         $total = (int)$stmt->fetchColumn();
 
         echo json_encode([
