@@ -25,7 +25,7 @@
          <div class="login__logo-wrap">
             <img src="assets/img/Evsu_Logo.png" alt="EVSU" class="login__logo">
          </div>
-         <h1 class="login__title">Teller Portal Jessadelle</h1>
+         <h1 class="login__title">Teller Portal</h1>
          <div class="login__area">
             <form class="login__form" id="loginForm">
                <div class="login__content grid">
